@@ -1,0 +1,9 @@
+name = "cf_ai_jz"  
+main = "src/index.js"  
+compatibility_date = "2024-09-01" 
+type = "javascript" 
+
+[ai]
+bindings = [
+  { name = "AI" }
+]
