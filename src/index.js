@@ -1,5 +1,18 @@
+import { StateDO } from "./state-do";
+export { StateDO };
+
 export default {
   async fetch(req, env) {
+    const url = new URL(req.url);
+
+    console.log("Handling", req.method, url.pathname);
+
+    if (url.pathname.startsWith("/store") || url.pathname.startsWith("/list")) {
+      const id = env.STATE.idFromName("global");
+      const obj = env.STATE.get(id);
+      return obj.fetch(req);
+    }
+
     if (req.method === "GET") {
       return new Response(`
         <html>
@@ -64,6 +77,18 @@ export default {
         ]
       });
 
+      const emailText = aiResponse.response;
+      
+      const id = env.STATE.idFromName("global");
+      const obj = env.STATE.get(id);
+      
+      const storeRequest = new Request(new URL("/store", req.url).toString(), {
+        method: "POST",
+        body: emailText,
+      });
+
+      await obj.fetch(storeRequest);
+      
       return new Response(`
         <html>
           <body>
@@ -77,6 +102,6 @@ export default {
       `, { headers: { "Content-Type": "text/html" } });
     }
 
-    return new Response("Method not allowed", { status: 405 });
+    return new Response("something went wrong", { status: 405 });
   }
 };

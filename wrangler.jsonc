@@ -13,5 +13,19 @@
 	"ai": {
 		"binding": "AI",
 		"remote": true
-	}
+	},
+	"durable_objects": {
+		"bindings": [
+		{
+			"name": "STATE",
+			"class_name": "StateDO"
+		}
+		]
+	},
+	"migrations": [
+		{
+		"tag": "v1",
+		"new_sqlite_classes": ["StateDO"]
+		}
+	]
 }
