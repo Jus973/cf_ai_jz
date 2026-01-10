@@ -3,10 +3,12 @@
 	"version": "0.0.0",
 	"private": true,
 	"scripts": {
-		"deploy": "wrangler deploy",
-		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"test": "vitest"
+		"test": "vitest",
+		"build:frontend": "cd frontend && npm run build",
+		"build": "npm run build:frontend && wrangler build",
+		"deploy": "npm run build && wrangler deploy",
+		"dev": "npm run build:frontend && wrangler dev"
 	},
 	"devDependencies": {
 		"@cloudflare/vitest-pool-workers": "^0.8.19",
