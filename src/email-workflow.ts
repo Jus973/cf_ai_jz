@@ -20,35 +20,70 @@ export class EmailWorkflow extends WorkflowEntrypoint<Env, Params> {
 
     const draftResp = await step.do("generate email", async () => {
       return await this.env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-        prompt: `Write a short professional job application email. Job: ${jobText} Resume: ${resumeText}`
+        prompt: `Write a short professional job application email. Job: ${jobText} Resume: ${resumeText}`,
+        max_tokens: 2048
       });
     });
 
     let currentEmail = draftResp.response;
 
-    while (true) {
-      await step.do("sync to storage", async () => {
-        await this.env.STATE.get(this.env.STATE.idFromName("global")).fetch("http://do/store-latest", {
+    await step.do("sync to storage", async () => {
+      await this.env.STATE.get(this.env.STATE.idFromName("global")).fetch(
+        "http://do/store-latest-draft",
+        {
           method: "POST",
-          body: currentEmail
-        });
-      });
+          body: currentEmail,
+        }
+      );
+    });
 
+    while (true) {
       const feedbackEvent = await step.waitForEvent("user_feedback", {
         type: "user_feedback",
         timeout: "5 minutes",
       });
 
-      const feedback = (feedbackEvent.payload as string).trim();
-      if (feedback.toLowerCase() === "done") break;
+      // If no feedback within timeout, finish with currentEmail
+      if (!feedbackEvent) {
+        console.log("No feedback received within timeout; finishing workflow.");
+        break;
+      }
 
-      // 4. Revise
+      const feedback = (feedbackEvent.payload as string).trim();
+
+      // If user says "done", end the loop
+      if (feedback.toLowerCase() === "done") {
+        console.log("User finished editing.");
+        break;
+      }
+
+      if (!feedback) {
+        console.log("Empty feedback received; skipping revision.");
+        continue;
+      }
+
       const revResp = await step.do("revise email", async () => {
         return await this.env.AI.run("@cf/meta/llama-3.1-8b-instruct", {
-          prompt: `Revise this email: "${currentEmail}" based on this user feedback: "${feedback}"`
+          prompt: `Revise this email: "${currentEmail}" based on this user feedback: "${feedback}"`,
+          max_tokens: 2048,
         });
       });
+
       currentEmail = revResp.response;
+
+      await step.do("sync to storage", async () => {
+        const stub = this.env.STATE.get(this.env.STATE.idFromName("global"));
+        const timestamp = new Date().toISOString();
+
+        await stub.fetch("http://do/store-latest-draft", {
+          method: "POST",
+          body: JSON.stringify({
+            draft: currentEmail,
+            createdAt: timestamp,
+          }),
+        });
+      });
+
     }
 
     return { finalEmail: currentEmail };
