@@ -5,8 +5,12 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "cf_ai_jz",
-	"main": "src/index.js",
+	"main": "src/index.ts",
 	"compatibility_date": "2024-09-01",
+	"compatibility_flags": [
+		"python_workers",
+		"python_workflows"
+  	],
 	"observability": {
 		"enabled": true
 	},
@@ -27,5 +31,12 @@
 		"tag": "v1",
 		"new_sqlite_classes": ["StateDO"]
 		}
-	]
+	],
+	"workflows": [
+		{
+			"name": "EMAIL_WORKFLOW",
+			"binding": "EMAIL_WORKFLOW",
+			"class_name": "EmailWorkflow"
+		}
+	],
 }
