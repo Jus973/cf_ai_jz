@@ -16,3 +16,10 @@
 - Generates necessary information
 - Stores summary + drafts using Durable Objects as memory
 - UI on Cloudflare Pages allows for user interaction
+
+### TODO List
+- Add ability to view Durable Object past drafts
+- Store resume in user system
+- Parse PDF resume (api call), simulate ATS
+- Show important details about the job listing
+- UI changes -> Tailwind CSS?
