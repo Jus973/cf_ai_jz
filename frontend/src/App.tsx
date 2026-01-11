@@ -34,13 +34,12 @@ function App() {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "2fr 1fr", // left: main, right: history
+          gridTemplateColumns: "2fr 1fr",
           gap: "24px",
           width: "100%",
           maxWidth: "1200px",
         }}
       >
-        {/* LEFT: title + form + live draft */}
         <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           <h2 style={{ margin: 0 }}>AI Email Generator</h2>
 
